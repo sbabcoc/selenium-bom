@@ -1,0 +1,16 @@
+# Git
+.git/
+
+# Maven build output
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store

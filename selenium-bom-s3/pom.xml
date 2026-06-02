@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.nordstrom.ui-tools</groupId>
+    <artifactId>selenium-bom</artifactId>
+    <version>34.0.1</version>
+  </parent>
+
+  <artifactId>selenium-bom-s3</artifactId>
+  <packaging>pom</packaging>
+
+  <name>Selenium BOM (Selenium 3)</name>
+  <description>Bill of Materials for Selenium Foundation and related projects (Selenium 3 variant).</description>
+
+  <properties>
+    <!-- Selenium 3 specific versions -->
+    <selenium-foundation.version>34.0.1-s3</selenium-foundation.version>
+    <selenium-grid-manager.version>34.0.1-s3</selenium-grid-manager.version>
+    <selenium.version>3.141.59</selenium.version>
+    <htmlunit-driver.version>2.70.0</htmlunit-driver.version>
+    <appium-client.version>7.6.0</appium-client.version>
+    <testng-foundation.version>6.0.0-j8</testng-foundation.version>
+    <webdrivermanager.version>6.3.3</webdrivermanager.version>
+    <jsoup.version>1.21.2</jsoup.version>
+    <okhttp.version>4.12.0</okhttp.version>
+    <okio.version>3.10.2</okio.version>
+    <kotlin.version>2.1.20</kotlin.version>
+    <websocket-client.version>9.4.57.v20241219</websocket-client.version>
+  </properties>
+
+  <!-- Skip source and javadoc JARs - POM-only artifact -->
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <skipSource>true</skipSource>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Nordstrom UI Tools -->
+      <dependency>
+        <groupId>com.nordstrom.ui-tools</groupId>
+        <artifactId>selenium-foundation</artifactId>
+        <version>${selenium-foundation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nordstrom.ui-tools</groupId>
+        <artifactId>selenium-grid-manager</artifactId>
+        <version>${selenium-grid-manager.version}</version>
+      </dependency>
+
+      <!-- Nordstrom Tools -->
+      <dependency>
+        <groupId>com.nordstrom.tools</groupId>
+        <artifactId>java-utils</artifactId>
+        <version>${java-utils.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nordstrom.tools</groupId>
+        <artifactId>settings</artifactId>
+        <version>${settings.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nordstrom.tools</groupId>
+        <artifactId>junit-foundation</artifactId>
+        <version>${junit-foundation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nordstrom.tools</groupId>
+        <artifactId>testng-foundation</artifactId>
+        <version>${testng-foundation.version}</version>
+      </dependency>
+
+      <!-- Selenium 3 -->
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-server</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-support</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-chrome-driver</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-edge-driver</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-firefox-driver</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-safari-driver</artifactId>
+        <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>htmlunit-driver</artifactId>
+        <version>${htmlunit-driver.version}</version>
+      </dependency>
+
+      <!-- Appium -->
+      <dependency>
+        <groupId>io.appium</groupId>
+        <artifactId>java-client</artifactId>
+        <version>${appium-client.version}</version>
+      </dependency>
+
+      <!-- WebDriver Manager -->
+      <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>${webdrivermanager.version}</version>
+      </dependency>
+
+      <!-- Logging -->
+      <dependency>
+        <groupId>com.github.sbabcoc</groupId>
+        <artifactId>logback-testng</artifactId>
+        <version>${logback-testng.version}</version>
+      </dependency>
+
+      <!-- Utilities -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${commons-text.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${jsoup.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okio</groupId>
+        <artifactId>okio</artifactId>
+        <version>${okio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-common</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.websocket</groupId>
+        <artifactId>websocket-client</artifactId>
+        <version>${websocket-client.version}</version>
+      </dependency>
+
+      <!-- Test -->
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>${hamcrest.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
