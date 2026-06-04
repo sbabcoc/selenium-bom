@@ -7,6 +7,7 @@
   <parent>
     <groupId>com.nordstrom.ui-tools</groupId>
     <artifactId>selenium-bom</artifactId>
+    <version>34.1.1</version>
   </parent>
 
   <artifactId>selenium-bom-s3</artifactId>
