@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.nordstrom.ui-tools</groupId>
     <artifactId>selenium-bom</artifactId>
-    <version>34.1.1</version>
+    <version>34.1.0</version>
   </parent>
 
   <artifactId>selenium-bom-s4</artifactId>
@@ -18,8 +18,8 @@
 
   <properties>
     <!-- Selenium 4 specific versions -->
-    <selenium-foundation.version>34.0.1-s4</selenium-foundation.version>
-    <selenium-grid-manager.version>34.0.1-s4</selenium-grid-manager.version>
+    <selenium-foundation.version>34.1.0-s4</selenium-foundation.version>
+    <selenium-grid-manager.version>34.1.0-s4</selenium-grid-manager.version>
     <selenium.version>4.44.0</selenium.version>
     <htmlunit-remote.version>4.44.0</htmlunit-remote.version>
     <htmlunit3-driver.version>4.44.0</htmlunit3-driver.version>
