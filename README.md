@@ -17,7 +17,7 @@ BOM versions are kept in sync with `selenium-foundation` and `selenium-grid-mana
 
 | BOM Version | selenium-foundation | selenium-grid-manager |
 |-------------|--------------------|-----------------------|
-| 34.0.1      | 34.0.1-s3 / 34.0.1-s4 | 34.0.1-s3 / 34.0.1-s4 |
+| 34.1.0      | 34.1.0-s3 / 34.1.0-s4 | 34.1.0-s3 / 34.1.0-s4 |
 
 ## Usage
 
@@ -32,7 +32,7 @@ Import the appropriate BOM variant in your `dependencyManagement` section:
         <dependency>
             <groupId>com.nordstrom.ui-tools</groupId>
             <artifactId>selenium-bom-s4</artifactId>
-            <version>34.0.1</version>
+            <version>34.1.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -61,7 +61,7 @@ Import the appropriate BOM variant using the `platform()` dependency:
 
 ```groovy
 dependencies {
-    implementation platform('com.nordstrom.ui-tools:selenium-bom-s4:34.0.1')
+    implementation platform('com.nordstrom.ui-tools:selenium-bom-s4:34.1.0')
 
     implementation 'com.nordstrom.ui-tools:selenium-foundation'
     implementation 'org.seleniumhq.selenium:selenium-chrome-driver'
