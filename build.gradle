@@ -1,0 +1,398 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.sonatype.plexus:plexus-sec-dispatcher:1.4'
+        classpath 'org.codehaus.plexus:plexus-container-default:2.1.1'
+        classpath 'org.sonatype.plexus:plexus-cipher:1.7'
+    }
+}
+
+import groovy.xml.XmlParser
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher
+
+plugins {
+    id 'maven-publish'
+    id 'signing'
+
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.21.1'
+}
+
+group = 'com.nordstrom.ui-tools'
+description = 'Bill of Materials for Selenium Foundation and related projects.'
+
+/* Version logic */
+def verBits = scmVersion.version.split('-')
+def baseVersion = verBits[0]
+def isSnapshot = !scmVersion.version.matches('\\d+\\.\\d+\\.\\d+')
+
+def bomVersion = baseVersion + (isSnapshot ? '-SNAPSHOT' : '')
+
+version = bomVersion
+
+/* Shared dependency versions */
+def versions = [
+    // Nordstrom tools
+    javaUtils        : '4.0.0',
+    settings         : '4.0.0',
+    junitFoundation  : '18.0.0',
+    logbackTestng    : '2.1.2',
+
+    // Shared dependencies
+    hamcrest         : '3.0',
+    snakeyaml        : '2.5',
+    httpclient       : '4.5.14',
+    commonsLang3     : '3.20.0',
+    commonsText      : '1.15.0',
+    jcommander       : '1.82',
+    guava            : '33.5.0-jre',
+    byteBuddy        : '1.17.5',
+    junit            : '4.13.2',
+    mockito          : '4.11.0',
+
+    // Selenium 4 specific
+    seleniumFoundationS4  : "${baseVersion}-s4${isSnapshot ? '-SNAPSHOT' : ''}",
+    seleniumGridManagerS4 : "${baseVersion}-s4${isSnapshot ? '-SNAPSHOT' : ''}",
+    seleniumS4            : '4.44.0',
+    htmlunitRemote        : '4.44.0',
+    htmlunit3Driver       : '4.44.0',
+    htmlunit              : '5.0.0',
+    appiumS4              : '10.0.0',
+    testngFoundationJ11   : '6.0.0-j11',
+    jettyServlet          : '9.4.57.v20241219',
+    jsoup                 : '1.21.2',
+    nettyEpoll            : '4.1.121.Final',
+    nettyKqueue           : '4.1.121.Final',
+
+    // Selenium 3 specific
+    seleniumFoundationS3  : "${baseVersion}-s3${isSnapshot ? '-SNAPSHOT' : ''}",
+    seleniumGridManagerS3 : "${baseVersion}-s3${isSnapshot ? '-SNAPSHOT' : ''}",
+    seleniumS3            : '3.141.59',
+    htmlunitDriver        : '2.70.0',
+    appiumS3              : '7.6.0',
+    testngFoundationJ8    : '6.0.0-j8',
+    webdrivermanager      : '6.3.3',
+    okhttp               : '4.12.0',
+    okio                 : '3.10.2',
+    kotlin               : '2.1.20',
+    websocketClient      : '9.4.57.v20241219'
+]
+
+def getMavenServer(String serverId) {
+    def settingsFile = new File(System.getProperty("user.home"), ".m2/settings.xml")
+    if (!settingsFile.exists()) return null
+
+    def settings = new XmlParser().parse(settingsFile)
+    def server = settings.servers.server.find { it.id.text() == serverId }
+
+    if (server) {
+        def dispatcher = new DefaultSecDispatcher()
+        dispatcher._cipher = new DefaultPlexusCipher()
+
+        def securityFile = new File(System.getProperty("user.home"), ".m2/settings-security.xml")
+        System.setProperty("settings.security", securityFile.absolutePath)
+
+        def decrypt = { String val ->
+            if (val == null) return null
+            return dispatcher._cipher.isEncryptedString(val) ? dispatcher.decrypt(val) : val
+        }
+
+        return [
+            username  : server.username?.text(),
+            password  : decrypt(server.password?.text()),
+            passphrase: decrypt(server.passphrase?.text())
+        ]
+    }
+
+    return null
+}
+
+scmVersion {
+    repository {
+        def githubNode = getMavenServer('github')
+        if (githubNode) {
+            customUsername.set(githubNode.username)
+            customPassword.set(githubNode.password)
+        }
+    }
+    branchVersionCreator.putAll([
+        '.*': { v, p -> v }
+    ])
+    hooks {
+        pre 'fileUpdate', [
+            file       : 'README.md',
+            pattern    : { v, p -> /\d+\.\d+\.\d+-s3/ },
+            replacement: { v, p -> "${v}-s3" }
+        ]
+        pre 'fileUpdate', [
+            file       : 'README.md',
+            pattern    : { v, p -> /\d+\.\d+\.\d+-s4/ },
+            replacement: { v, p -> "${v}-s4" }
+        ]
+        pre 'commit'
+        post 'push'
+    }
+}
+
+def sharedDependencies = { ->
+    dependency("com.nordstrom.tools:java-utils:${versions.javaUtils}")
+    dependency("com.nordstrom.tools:settings:${versions.settings}")
+    dependency("com.nordstrom.tools:junit-foundation:${versions.junitFoundation}")
+    dependency("com.github.sbabcoc:logback-testng:${versions.logbackTestng}")
+    dependency("org.hamcrest:hamcrest-core:${versions.hamcrest}")
+    dependency("org.yaml:snakeyaml:${versions.snakeyaml}")
+    dependency("org.apache.httpcomponents:httpclient:${versions.httpclient}")
+    dependency("org.apache.commons:commons-lang3:${versions.commonsLang3}")
+    dependency("org.apache.commons:commons-text:${versions.commonsText}")
+    dependency("com.beust:jcommander:${versions.jcommander}")
+    dependency("com.google.guava:guava:${versions.guava}")
+    dependency("net.bytebuddy:byte-buddy:${versions.byteBuddy}")
+    dependency("junit:junit:${versions.junit}")
+    dependency("org.mockito:mockito-core:${versions.mockito}")
+}
+
+publishing {
+    publications {
+
+        /* Selenium 4 BOM */
+        seleniumBomS4(MavenPublication) {
+            groupId = project.group
+            artifactId = 'selenium-bom-s4'
+            version = bomVersion
+
+            pom {
+                packaging = 'pom'
+                name = 'Selenium BOM (Selenium 4)'
+                description = 'Bill of Materials for Selenium Foundation and related projects (Selenium 4 variant).'
+                url = 'https://github.com/sbabcoc/selenium-bom'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'scoba'
+                        name = 'Scott Babcock'
+                        email = 'scoba@hotmail.com'
+                        organization = 'Nordstrom'
+                        organizationUrl = 'https://shop.nordstrom.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/sbabcoc/selenium-bom.git'
+                    developerConnection = 'scm:git:https://github.com/sbabcoc/selenium-bom.git'
+                    url = 'https://github.com/sbabcoc/selenium-bom/tree/master'
+                    tag = 'HEAD'
+                }
+
+                withXml {
+                    def root = asNode()
+                    def depMgmt = root.appendNode('dependencyManagement')
+                    def deps = depMgmt.appendNode('dependencies')
+
+                    def addDep = { String coord ->
+                        def parts = coord.split(':')
+                        def dep = deps.appendNode('dependency')
+                        dep.appendNode('groupId', parts[0])
+                        dep.appendNode('artifactId', parts[1])
+                        dep.appendNode('version', parts[2])
+                    }
+
+                    // Nordstrom UI Tools
+                    addDep("com.nordstrom.ui-tools:selenium-foundation:${versions.seleniumFoundationS4}")
+                    addDep("com.nordstrom.ui-tools:selenium-grid-manager:${versions.seleniumGridManagerS4}")
+                    addDep("com.nordstrom.ui-tools:htmlunit-remote:${versions.htmlunitRemote}")
+
+                    // Nordstrom Tools
+                    addDep("com.nordstrom.tools:java-utils:${versions.javaUtils}")
+                    addDep("com.nordstrom.tools:settings:${versions.settings}")
+                    addDep("com.nordstrom.tools:junit-foundation:${versions.junitFoundation}")
+                    addDep("com.nordstrom.tools:testng-foundation:${versions.testngFoundationJ11}")
+
+                    // Selenium 4
+                    addDep("org.seleniumhq.selenium:selenium-grid:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:selenium-support:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:selenium-chrome-driver:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:selenium-edge-driver:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:selenium-firefox-driver:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:selenium-safari-driver:${versions.seleniumS4}")
+                    addDep("org.seleniumhq.selenium:htmlunit3-driver:${versions.htmlunit3Driver}")
+                    addDep("org.htmlunit:htmlunit:${versions.htmlunit}")
+
+                    // Appium
+                    addDep("io.appium:java-client:${versions.appiumS4}")
+
+                    // Logging
+                    addDep("com.github.sbabcoc:logback-testng:${versions.logbackTestng}")
+
+                    // Utilities
+                    addDep("org.apache.httpcomponents:httpclient:${versions.httpclient}")
+                    addDep("org.apache.commons:commons-lang3:${versions.commonsLang3}")
+                    addDep("org.apache.commons:commons-text:${versions.commonsText}")
+                    addDep("com.beust:jcommander:${versions.jcommander}")
+                    addDep("com.google.guava:guava:${versions.guava}")
+                    addDep("org.jsoup:jsoup:${versions.jsoup}")
+                    addDep("org.eclipse.jetty:jetty-servlet:${versions.jettyServlet}")
+                    addDep("org.yaml:snakeyaml:${versions.snakeyaml}")
+                    addDep("net.bytebuddy:byte-buddy:${versions.byteBuddy}")
+                    addDep("io.netty:netty-transport-native-epoll:${versions.nettyEpoll}")
+                    addDep("io.netty:netty-transport-native-kqueue:${versions.nettyKqueue}")
+
+                    // Test
+                    addDep("org.hamcrest:hamcrest-core:${versions.hamcrest}")
+                    addDep("junit:junit:${versions.junit}")
+                    addDep("org.mockito:mockito-core:${versions.mockito}")
+                }
+            }
+        }
+
+        /* Selenium 3 BOM */
+        seleniumBomS3(MavenPublication) {
+            groupId = project.group
+            artifactId = 'selenium-bom-s3'
+            version = bomVersion
+
+            pom {
+                packaging = 'pom'
+                name = 'Selenium BOM (Selenium 3)'
+                description = 'Bill of Materials for Selenium Foundation and related projects (Selenium 3 variant).'
+                url = 'https://github.com/sbabcoc/selenium-bom'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'scoba'
+                        name = 'Scott Babcock'
+                        email = 'scoba@hotmail.com'
+                        organization = 'Nordstrom'
+                        organizationUrl = 'https://shop.nordstrom.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/sbabcoc/selenium-bom.git'
+                    developerConnection = 'scm:git:https://github.com/sbabcoc/selenium-bom.git'
+                    url = 'https://github.com/sbabcoc/selenium-bom/tree/master'
+                    tag = 'HEAD'
+                }
+
+                withXml {
+                    def root = asNode()
+                    def depMgmt = root.appendNode('dependencyManagement')
+                    def deps = depMgmt.appendNode('dependencies')
+
+                    def addDep = { String coord ->
+                        def parts = coord.split(':')
+                        def dep = deps.appendNode('dependency')
+                        dep.appendNode('groupId', parts[0])
+                        dep.appendNode('artifactId', parts[1])
+                        dep.appendNode('version', parts[2])
+                    }
+
+                    // Nordstrom UI Tools
+                    addDep("com.nordstrom.ui-tools:selenium-foundation:${versions.seleniumFoundationS3}")
+                    addDep("com.nordstrom.ui-tools:selenium-grid-manager:${versions.seleniumGridManagerS3}")
+
+                    // Nordstrom Tools
+                    addDep("com.nordstrom.tools:java-utils:${versions.javaUtils}")
+                    addDep("com.nordstrom.tools:settings:${versions.settings}")
+                    addDep("com.nordstrom.tools:junit-foundation:${versions.junitFoundation}")
+                    addDep("com.nordstrom.tools:testng-foundation:${versions.testngFoundationJ8}")
+
+                    // Selenium 3
+                    addDep("org.seleniumhq.selenium:selenium-server:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:selenium-support:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:selenium-chrome-driver:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:selenium-edge-driver:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:selenium-firefox-driver:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:selenium-safari-driver:${versions.seleniumS3}")
+                    addDep("org.seleniumhq.selenium:htmlunit-driver:${versions.htmlunitDriver}")
+
+                    // Appium
+                    addDep("io.appium:java-client:${versions.appiumS3}")
+
+                    // WebDriver Manager
+                    addDep("io.github.bonigarcia:webdrivermanager:${versions.webdrivermanager}")
+
+                    // Logging
+                    addDep("com.github.sbabcoc:logback-testng:${versions.logbackTestng}")
+
+                    // Utilities
+                    addDep("org.apache.httpcomponents:httpclient:${versions.httpclient}")
+                    addDep("org.apache.commons:commons-lang3:${versions.commonsLang3}")
+                    addDep("org.apache.commons:commons-text:${versions.commonsText}")
+                    addDep("com.beust:jcommander:${versions.jcommander}")
+                    addDep("com.google.guava:guava:${versions.guava}")
+                    addDep("org.jsoup:jsoup:${versions.jsoup}")
+                    addDep("org.yaml:snakeyaml:${versions.snakeyaml}")
+                    addDep("net.bytebuddy:byte-buddy:${versions.byteBuddy}")
+                    addDep("com.squareup.okhttp3:okhttp:${versions.okhttp}")
+                    addDep("com.squareup.okio:okio:${versions.okio}")
+                    addDep("org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}")
+                    addDep("org.jetbrains.kotlin:kotlin-stdlib-common:${versions.kotlin}")
+                    addDep("org.eclipse.jetty.websocket:websocket-client:${versions.websocketClient}")
+
+                    // Test
+                    addDep("org.hamcrest:hamcrest-core:${versions.hamcrest}")
+                    addDep("junit:junit:${versions.junit}")
+                    addDep("org.mockito:mockito-core:${versions.mockito}")
+                }
+            }
+        }
+    }
+}
+
+/* Signing */
+signing {
+    if (project.hasProperty('signing.keyId')) {
+        def keyId = project.getProperty('signing.keyId')
+        def gpgNode = getMavenServer(keyId)
+        def secret = gpgNode?.passphrase
+
+        if (secret) {
+            useGpgCmd()
+            project.ext.set("signing.gnupg.passphrase", secret)
+            project.ext.set("signing.gnupg.arguments", "--batch,--pinentry-mode,loopback")
+        }
+    }
+    sign publishing.publications.seleniumBomS4
+    sign publishing.publications.seleniumBomS3
+}
+
+/* Install alias */
+tasks.register('install') {
+    dependsOn tasks.named('publishToMavenLocal')
+    group = tasks.named('publishToMavenLocal').get().group
+    description = "[alias] publish to Maven Local"
+}
+
+/* Nexus publishing */
+nexusPublishing {
+    packageGroup = 'com.nordstrom'
+    repositories {
+        ossrh {
+            def ossrhNode = getMavenServer('ossrh')
+            username = ossrhNode?.username
+            password = ossrhNode?.password
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots/"))
+            if (project.hasProperty('ossrhStagingProfileId')) {
+                stagingProfileId = ossrhStagingProfileId
+            }
+        }
+    }
+}

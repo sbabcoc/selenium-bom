@@ -1,8 +1,9 @@
 # Git
 .git/
 
-# Maven build output
-target/
+# Gradle build output
+build/
+.gradle/
 
 # Eclipse
 .classpath
