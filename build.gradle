@@ -34,17 +34,17 @@ def bomVersion = baseVersion + (isSnapshot ? '-SNAPSHOT' : '')
 version = bomVersion
 
 task updateReadme {
-  doLast {
-    def version = scmVersion.version
-    ant.replaceregexp(file: 'README.md',
-      match: /\d+\.\d+\.\d+-s3/,
-      replace: "${version}-s3",
-      flags: 'g')
-    ant.replaceregexp(file: 'README.md',
-      match: /\d+\.\d+\.\d+-s4/,
-      replace: "${version}-s4",
-      flags: 'g')
-  }
+    doLast {
+        def version = scmVersion.version
+        ant.replaceregexp(file: 'README.md',
+            match: /\d+\.\d+\.\d+-s3/,
+            replace: "${version}-s3",
+            flags: 'g')
+        ant.replaceregexp(file: 'README.md',
+            match: /\d+\.\d+\.\d+-s4/,
+            replace: "${version}-s4",
+            flags: 'g')
+    }
 }
 
 /* Shared dependency versions */
