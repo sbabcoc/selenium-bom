@@ -240,3 +240,19 @@ at the same base version. Check with:
 ```groovy
 def verBits = scmVersion.version.split('-')
 ```
+
+## @since Placeholder Replacement
+
+New classes and interfaces use `@since [next-major]` as a placeholder.
+
+> ⚠️ **IMPORTANT**: The `publish` task (and `compileJava` in `selenium-foundation`
+> and `selenium-grid-manager`) will **fail** on non-SNAPSHOT builds if any
+> `[next-major]` placeholders remain in source.
+
+Run before tagging:
+
+    ./gradlew updateSinceAnnotations
+
+Verify clean:
+
+    grep -r '\[next-major\]' src/main/java && echo "FOUND" || echo "Clean"
