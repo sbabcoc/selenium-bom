@@ -24,6 +24,48 @@ plugins {
 group = 'com.nordstrom.ui-tools'
 description = 'Bill of Materials for Selenium Foundation and related projects.'
 
+def getMavenServer(String serverId) {
+    def settingsFile = new File(System.getProperty("user.home"), ".m2/settings.xml")
+    if (!settingsFile.exists()) return null
+
+    def settings = new XmlParser().parse(settingsFile)
+    def server = settings.servers.server.find { it.id.text() == serverId }
+
+    if (server) {
+        def dispatcher = new DefaultSecDispatcher()
+        dispatcher._cipher = new DefaultPlexusCipher()
+
+        def securityFile = new File(System.getProperty("user.home"), ".m2/settings-security.xml")
+        System.setProperty("settings.security", securityFile.absolutePath)
+
+        def decrypt = { String val ->
+            if (val == null) return null
+            return dispatcher._cipher.isEncryptedString(val) ? dispatcher.decrypt(val) : val
+        }
+
+        return [
+            username  : server.username?.text(),
+            password  : decrypt(server.password?.text()),
+            passphrase: decrypt(server.passphrase?.text())
+        ]
+    }
+
+    return null
+}
+
+scmVersion {
+    branchVersionCreator.putAll([
+        '.*': { v, p -> v }
+    ])
+    repository {
+        def githubNode = getMavenServer('github')
+        if (githubNode) {
+            customUsername.set(githubNode.username)
+            customPassword.set(githubNode.password)
+        }
+    }
+}
+
 /* Version logic */
 def verBits = scmVersion.version.split('-')
 def baseVersion = verBits[0]
@@ -94,48 +136,6 @@ def versions = [
     kotlin               : '2.1.20',
     websocketClient      : '9.4.57.v20241219'
 ]
-
-def getMavenServer(String serverId) {
-    def settingsFile = new File(System.getProperty("user.home"), ".m2/settings.xml")
-    if (!settingsFile.exists()) return null
-
-    def settings = new XmlParser().parse(settingsFile)
-    def server = settings.servers.server.find { it.id.text() == serverId }
-
-    if (server) {
-        def dispatcher = new DefaultSecDispatcher()
-        dispatcher._cipher = new DefaultPlexusCipher()
-
-        def securityFile = new File(System.getProperty("user.home"), ".m2/settings-security.xml")
-        System.setProperty("settings.security", securityFile.absolutePath)
-
-        def decrypt = { String val ->
-            if (val == null) return null
-            return dispatcher._cipher.isEncryptedString(val) ? dispatcher.decrypt(val) : val
-        }
-
-        return [
-            username  : server.username?.text(),
-            password  : decrypt(server.password?.text()),
-            passphrase: decrypt(server.passphrase?.text())
-        ]
-    }
-
-    return null
-}
-
-scmVersion {
-    repository {
-        def githubNode = getMavenServer('github')
-        if (githubNode) {
-            customUsername.set(githubNode.username)
-            customPassword.set(githubNode.password)
-        }
-    }
-    branchVersionCreator.putAll([
-        '.*': { v, p -> v }
-    ])
-}
 
 def sharedDependencies = { ->
     dependency("com.nordstrom.tools:java-utils:${versions.javaUtils}")
