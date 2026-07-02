@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.nordstrom.ui-tools/selenium-bom.svg)](https://central.sonatype.com/search?q=com.nordstrom.ui-tools+selenium-bom&core=gav)
+
 # Selenium BOM
 
 This project provides a [Bill of Materials](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#bill-of-materials-bom-poms) (BOM) for synchronizing dependency versions across [Selenium Foundation](https://github.com/sbabcoc/Selenium-Foundation), [Selenium Grid Manager](https://github.com/sbabcoc/selenium-grid-manager), and their client projects.
