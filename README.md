@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/com.nordstrom.ui-tools/selenium-bom.svg)](https://central.sonatype.com/search?q=com.nordstrom.ui-tools+selenium-bom&core=gav)
+[![Maven Central](https://img.shields.io/maven-central/v/com.nordstrom.ui-tools/selenium-bom-s4.svg)](https://central.sonatype.com/search?q=com.nordstrom.ui-tools+selenium-bom-s4&core=gav)
 
 # Selenium BOM
 
