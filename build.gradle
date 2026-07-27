@@ -79,7 +79,7 @@ def bomVersion = baseVersion + (isSnapshot ? '-SNAPSHOT' : '')
 version = bomVersion
 
 task updateReadme {
-    def base = project.ext.baseVersion
+    def base = baseVersion
     doLast {
         def version = resolvedVersion
         if (version.endsWith('-SNAPSHOT')) return
