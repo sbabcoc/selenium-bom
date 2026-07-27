@@ -67,9 +67,12 @@ scmVersion {
 }
 
 /* Version logic */
-def verBits = scmVersion.version.split('-')
+def resolvedVersion = project.hasProperty('artifactVersion')
+        ? project.property('artifactVersion').toString()
+        : scmVersion.version
+def verBits = resolvedVersion.split('-')
 def baseVersion = verBits[0]
-def isSnapshot = !scmVersion.version.matches('\\d+\\.\\d+\\.\\d+')
+def isSnapshot = !resolvedVersion.matches('\\d+\\.\\d+\\.\\d+')
 
 def bomVersion = baseVersion + (isSnapshot ? '-SNAPSHOT' : '')
 
@@ -114,7 +117,7 @@ task checkSincePlaceholders {
         if (violations) {
             throw new GradleException(
                 "\n*** RELEASE BUILD FAILED ***\n"
-                + "Unreplaced [next-major] placeholders found in release ${ext.baseVersion}:\n"
+                + "Unreplaced [next-major] placeholders found in release ${baseVersion}:\n"
                 + violations.join('\n')
                 + "\nEnsure all placeholders were replaced before publishing.\n")
         }
