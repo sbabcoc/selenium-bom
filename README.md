@@ -19,7 +19,7 @@ BOM versions are kept in sync with `selenium-foundation` and `selenium-grid-mana
 
 | BOM Version | selenium-foundation | selenium-grid-manager |
 |-------------|--------------------|-----------------------|
-| 34.1.0      | 36.3.3-s3 / 36.3.3-s4 | 36.3.3-s3 / 36.3.3-s4 |
+| 34.1.0      | 36.4.0-s3 / 36.4.0-s4 | 36.4.0-s3 / 36.4.0-s4 |
 
 ## Usage
 
