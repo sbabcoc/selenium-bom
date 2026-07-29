@@ -91,6 +91,18 @@ task updateReadme {
             match: /\d+\.\d+\.\d+-s4/,
             replace: "${base}-s4",
             flags: 'g')
+        ant.replaceregexp(file: 'README.md',
+            match: /(\| )\d+\.\d+\.\d+(\s+\|)/,
+            replace: "\\1${base}\\2",
+            flags: 'g')
+        ant.replaceregexp(file: 'README.md',
+            match: /(<version>)\d+\.\d+\.\d+(<\/version>)/,
+            replace: "\\1${base}\\2",
+            flags: 'g')
+        ant.replaceregexp(file: 'README.md',
+            match: /(selenium-bom-s4:)\d+\.\d+\.\d+/,
+            replace: "\\1${base}",
+            flags: 'g')
     }
 }
 
