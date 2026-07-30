@@ -168,7 +168,7 @@ publish.dependsOn(checkSincePlaceholders)
 /* Shared dependency versions */
 def versions = [
     // Nordstrom tools
-    javaUtils        : '4.0.0',
+    javaUtils        : '4.1.0',
     settings         : '4.0.0',
     junitFoundation  : '18.0.0',
     logbackTestng    : '2.1.2',
