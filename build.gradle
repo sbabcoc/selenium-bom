@@ -170,7 +170,7 @@ def versions = [
     // Nordstrom tools
     javaUtils        : '4.2.0',
     settings         : '4.0.0',
-    junitFoundation  : '18.0.0',
+    junitFoundation  : '18.0.1',
     logbackTestng    : '2.1.2',
 
     // Shared dependencies
@@ -193,7 +193,8 @@ def versions = [
     htmlunit3Driver       : '4.47.0',
     htmlunit              : '5.4.0',
     appiumS4              : '10.1.1',
-    testngFoundationJ11   : '6.0.1-j11',
+    testngFoundationJ11   : '6.0.2-j11',
+    jupiterFoundationJ17  : '1.0.0-j17',
     jettyServlet          : '9.4.58.v20250814',
     jsoup                 : '1.22.2',
     nettyEpoll            : '4.2.16.Final',
@@ -205,7 +206,8 @@ def versions = [
     seleniumS3            : '3.141.59',
     htmlunitDriver        : '2.70.0',
     appiumS3              : '7.6.0',
-    testngFoundationJ8    : '6.0.1-j8',
+    testngFoundationJ8    : '6.0.2-j8',
+    jupiterFoundationJ8   : '1.0.0-j8',
     webdrivermanager      : '6.3.4',
     okhttp               : '5.4.0',
     okio                 : '3.17.0',
@@ -292,6 +294,7 @@ publishing {
                     addDep("com.nordstrom.tools:settings:${versions.settings}")
                     addDep("com.nordstrom.tools:junit-foundation:${versions.junitFoundation}")
                     addDep("com.nordstrom.tools:testng-foundation:${versions.testngFoundationJ11}")
+                    addDep("com.nordstrom.tools:jupiter-foundation:${versions.jupiterFoundationJ17}")
 
                     // Selenium 4
                     addDep("org.seleniumhq.selenium:selenium-grid:${versions.seleniumS4}")
@@ -388,6 +391,7 @@ publishing {
                     addDep("com.nordstrom.tools:settings:${versions.settings}")
                     addDep("com.nordstrom.tools:junit-foundation:${versions.junitFoundation}")
                     addDep("com.nordstrom.tools:testng-foundation:${versions.testngFoundationJ8}")
+                    addDep("com.nordstrom.tools:jupiter-foundation:${versions.jupiterFoundationJ8}")
 
                     // Selenium 3
                     addDep("org.seleniumhq.selenium:selenium-server:${versions.seleniumS3}")
